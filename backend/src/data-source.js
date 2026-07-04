@@ -13,8 +13,16 @@ dotenv.config();
 export const AppDataSource = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL,
-  synchronize: process.env.NODE_ENV !== "production",
+  synchronize: true,
+
   logging: false,
+
   entities: [TeacherEntity, GroupEntity, StudentEntity, PaymentEntity, AttendanceEntity],
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+
+  // Railway PostgreSQL SSL talab qiladi
+  ssl: process.env.DATABASE_URL?.includes("railway")
+    ? { rejectUnauthorized: false }
+    : process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false,
 });
