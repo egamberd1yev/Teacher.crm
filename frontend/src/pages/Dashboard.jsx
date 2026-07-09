@@ -36,7 +36,6 @@ function GroupCard({ group, summary, dark }) {
     : pct > 0
     ? "linear-gradient(90deg,#F59E0B,#FCD34D)"
     : "transparent";
-
   const cardBorder = dark ? "#2A2D3E" : "#E5E7EB";
 
   return (
@@ -51,7 +50,6 @@ function GroupCard({ group, summary, dark }) {
         textDecoration: "none",
         transition: "border-color 0.15s, box-shadow 0.15s, transform 0.15s",
         boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-        cursor: "pointer",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = "#5B6AF0";
@@ -64,7 +62,6 @@ function GroupCard({ group, summary, dark }) {
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >
-      {/* Sarlavha */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "10px" }}>
         <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "15px", fontWeight: 600, color: dark ? "#E8EAED" : "#111318", margin: 0, paddingRight: "8px", lineHeight: 1.3 }}>
           {group.name}
@@ -75,7 +72,6 @@ function GroupCard({ group, summary, dark }) {
       <p style={{ fontSize: "11.5px", color: dark ? "#8B90A7" : "#6B7280", margin: "0 0 2px" }}>{dayLabels}</p>
       <p style={{ fontSize: "11.5px", color: dark ? "#8B90A7" : "#6B7280", margin: "0 0 14px" }}>{group.lessonTime}</p>
 
-      {/* Progress bar */}
       <div style={{ marginBottom: "12px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
           <span style={{ fontSize: "12px", fontWeight: 500, color: dark ? "#E8EAED" : "#111318" }}>
@@ -88,7 +84,6 @@ function GroupCard({ group, summary, dark }) {
         </div>
       </div>
 
-      {/* Footer */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: "12px", color: dark ? "#8B90A7" : "#6B7280" }}>
           👤 {count} ta o'quvchi
@@ -159,12 +154,13 @@ export default function Dashboard() {
       title="Dashboard"
       action={
         <button onClick={() => setShowForm(!showForm)} className="btn-primary">
-          + Guruh yaratish
+          <span className="btn-text-full">+ Guruh yaratish</span>
+          <span className="btn-text-short">+</span>
         </button>
       }
     >
-      {/* Statistika */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "14px", marginBottom: "28px" }}>
+      {/* Statistika — responsive grid */}
+      <div className="stats-grid">
         {stats.map((s) => (
           <div key={s.label} style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: "12px", padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
             <p style={{ fontSize: "12px", color: subtext, fontWeight: 500, margin: "0 0 6px" }}>{s.label}</p>
@@ -183,7 +179,9 @@ export default function Dashboard() {
               <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: text, marginBottom: "6px" }}>Guruh nomi</label>
               <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ingliz tili — A1" className="crm-input" />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+
+            {/* Vaqt + narx — responsive */}
+            <div className="form-row">
               <div>
                 <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: text, marginBottom: "6px" }}>Dars vaqti</label>
                 <input type="time" required value={form.lessonTime} onChange={(e) => setForm({ ...form, lessonTime: e.target.value })} className="crm-input" />
@@ -193,6 +191,7 @@ export default function Dashboard() {
                 <input type="number" required value={form.monthlyPrice} onChange={(e) => setForm({ ...form, monthlyPrice: e.target.value })} placeholder="300000" className="crm-input" />
               </div>
             </div>
+
             <div style={{ marginBottom: "16px" }}>
               <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: text, marginBottom: "8px" }}>Dars kunlari</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -217,16 +216,16 @@ export default function Dashboard() {
             <div style={{ display: "flex", gap: "8px" }}>
               <button type="submit" className="btn-primary">Guruh yaratish</button>
               <button type="button" onClick={() => setShowForm(false)} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "13.5px", fontWeight: 500, color: subtext, background: "none", border: "none", cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>
-                Bekor qilish
+                Bekor
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Guruhlar */}
+      {/* Guruhlar — responsive grid */}
       <p style={{ fontSize: "14px", fontWeight: 600, color: text, margin: "0 0 14px" }}>Guruhlar</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "14px" }}>
+      <div className="groups-grid">
         {groups.map((g) => (
           <GroupCard key={g.id} group={g} summary={summaries[g.id]} dark={dark} />
         ))}
