@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://teachercrm.railway.internal/api";
+const API_URL = "https://teachercrm-production-fcb0.up.railway.app/api";
 
 const api = axios.create({
   baseURL: API_URL,
