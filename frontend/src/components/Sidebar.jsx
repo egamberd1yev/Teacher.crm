@@ -136,7 +136,7 @@ export default function Sidebar({ isOpen, onClose }) {
               onMouseEnter={(e) => e.currentTarget.style.color = "#EF4444"}
               onMouseLeave={(e) => e.currentTarget.style.color = "#6B7A8D"}
             >
-              ✕
+              Log out
             </button>
           </div>
         </div>
