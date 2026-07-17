@@ -57,7 +57,6 @@ function Row({ row, dark, onSave }) {
       <p style={{ fontSize: "12.5px", color: sub, margin: 0 }}>{row.groupName}</p>
       <p style={{ fontSize: "12.5px", color: text, margin: 0 }}>{Number(row.monthlyPrice).toLocaleString()} so'm</p>
       <input
-        type="number"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="0"
