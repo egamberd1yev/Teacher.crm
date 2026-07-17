@@ -24,4 +24,26 @@ export const paymentController = {
       res.status(400).json({ message: error.message });
     }
   },
+
+    async getAll(req, res) {
+    try {
+      const { month } = req.query;
+      const data = await paymentService.getAllForMonth(req.teacherId, month);
+      res.status(200).json(data);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  async setAmount(req, res) {
+    try {
+      const { studentId } = req.params;
+      const { month, amount } = req.body;
+      const payment = await paymentService.setAmount(req.teacherId, studentId, month, amount);
+      res.status(200).json(payment);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
 };

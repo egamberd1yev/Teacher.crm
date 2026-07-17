@@ -75,4 +75,63 @@ export const paymentService = {
       debtors,
     };
   },
+
+  // Summani qo'lda kiritish (qisman yoki to'liq to'lov)
+  async setAmount(teacherId, studentId, month, amount) {
+    const student = await studentRepository.findOne({
+      where: { id: studentId },
+      relations: { group: { teacher: true } },
+    });
+    if (!student || student.group.teacher.id !== teacherId) {
+      throw new Error("O'quvchi topilmadi");
+    }
+
+    const payment = await this.getOrCreate(studentId, month);
+    const numAmount = Number(amount) || 0;
+    const status = numAmount >= Number(student.group.monthlyPrice) ? "paid" : "unpaid";
+
+    await paymentRepository.update(payment.id, {
+      amount: numAmount,
+      status,
+      paidAt: status === "paid" ? new Date() : null,
+    });
+
+    return paymentRepository.findOneBy({ id: payment.id });
+  },
+
+  // "To'lovlar" sahifasi uchun - barcha o'quvchilar shu oy bo'yicha
+  async getAllForMonth(teacherId, month) {
+    const groups = await groupRepository.find({
+      where: { teacher: { id: teacherId } },
+      relations: { students: true },
+    });
+
+    const result = [];
+    for (const group of groups) {
+      for (const student of group.students) {
+        const payment = await paymentRepository.findOne({
+          where: { student: { id: student.id }, month },
+        });
+        const amount = Number(payment?.amount || 0);
+        const price  = Number(group.monthlyPrice);
+
+        let state;
+        if (amount <= 0) state = "unpaid";
+        else if (amount < price) state = "partial";
+        else state = "paid";
+
+        result.push({
+          studentId: student.id,
+          fullName: student.fullName,
+          phone: student.phone,
+          groupId: group.id,
+          groupName: group.name,
+          monthlyPrice: price,
+          amount,
+          state,
+        });
+      }
+    }
+    return result;
+  },
 };
