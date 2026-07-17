@@ -102,12 +102,24 @@ export default function Dashboard() {
   const [summaries, setSummaries] = useState({});
   const [showForm, setShowForm]   = useState(false);
   const [form, setForm] = useState({ name: "", lessonTime: "", monthlyPrice: "", scheduleDays: [] });
+  const [query, setQuery] = useState("");
   const month = currentMonth();
 
   const text    = dark ? "#E8EAED" : "#111318";
   const subtext = dark ? "#8B90A7" : "#6B7280";
   const cardBg  = dark ? "#1A1D27" : "#ffffff";
   const border  = dark ? "#2A2D3E" : "#E5E7EB";
+
+  const q = query.trim().toLowerCase();
+  const filteredGroups = q
+    ? groups.filter((g) => {
+        if (g.name?.toLowerCase().includes(q)) return true;
+        if (String(g.monthlyPrice || "").includes(q)) return true;
+        return (g.students || []).some((s) =>
+          s.fullName?.toLowerCase().includes(q) || s.phone?.toLowerCase().includes(q)
+        );
+      })
+    : groups;
 
   async function loadGroups() {
     const { data } = await api.get("/groups");
@@ -223,16 +235,32 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Qidiruv */}
+      <div style={{ marginBottom: "18px" }}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Qidirish: o'quvchi ismi, telefon, guruh nomi yoki narx..."
+          className="crm-input"
+          style={{ maxWidth: "420px" }}
+        />
+      </div>
+
       {/* Guruhlar — responsive grid */}
       <p style={{ fontSize: "14px", fontWeight: 600, color: text, margin: "0 0 14px" }}>Guruhlar</p>
       <div className="groups-grid">
-        {groups.map((g) => (
+        {filteredGroups.map((g) => (
           <GroupCard key={g.id} group={g} summary={summaries[g.id]} dark={dark} />
         ))}
         {groups.length === 0 && !showForm && (
           <div style={{ gridColumn: "span 3", background: cardBg, border: `1px solid ${border}`, borderRadius: "12px", padding: "40px", textAlign: "center" }}>
             <p style={{ color: subtext, fontSize: "14px", marginBottom: "12px" }}>Hali guruh yo'q</p>
             <button onClick={() => setShowForm(true)} className="btn-primary">+ Birinchi guruhni yarating</button>
+          </div>
+        )}
+        {groups.length > 0 && filteredGroups.length === 0 && (
+          <div style={{ gridColumn: "span 3", background: cardBg, border: `1px solid ${border}`, borderRadius: "12px", padding: "40px", textAlign: "center" }}>
+            <p style={{ color: subtext, fontSize: "14px" }}>Hech narsa topilmadi</p>
           </div>
         )}
       </div>
