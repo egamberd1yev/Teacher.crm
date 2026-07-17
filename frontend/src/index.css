@@ -87,6 +87,7 @@ h1, h2, h3, .font-display {
 .pill-green { background: #DCFCE7; color: #16A34A; }
 .pill-red   { background: #FEE2E2; color: #DC2626; }
 .pill-gray  { background: #F3F4F6; color: #9CA3AF; }
+.pill-yellow { background: #FEF3C7; color: #B45309;}
 .dark .pill-gray { background: rgba(255,255,255,0.08); }
 
 /* Input */
