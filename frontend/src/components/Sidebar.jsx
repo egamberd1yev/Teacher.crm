@@ -75,7 +75,7 @@ export default function Sidebar({ isOpen, onClose }) {
           <img
             src={logo}
             alt="Teacher CRM"
-            style={{ height: 40, width: "auto", objectFit: "contain" }}
+            style={{ height: 70, width: "auto", objectFit: "contain" }}
           />
         </div>
 
