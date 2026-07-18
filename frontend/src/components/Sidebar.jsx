@@ -1,14 +1,15 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import logo from "../images/logo.jpg";
 
 const NAV_TOP = [
   { to: "/dashboard", label: "Dashboard", icon: "⊞" },
-  { to: "/groups",    label: "Guruhlar",  icon: "◫" },
+  { to: "/groups", label: "Guruhlar", icon: "◫" },
 ];
 const NAV_BOTTOM = [
-  { to: "/payments",   label: "To'lovlar", icon: "◈" },
-  { to: "/attendance", label: "Davomat",   icon: "◷" },
+  { to: "/payments", label: "To'lovlar", icon: "◈" },
+  { to: "/attendance", label: "Davomat", icon: "◷" },
 ];
 
 const SECTION_LABEL = {
@@ -74,9 +75,9 @@ export default function Sidebar({ isOpen, onClose }) {
           fontSize: "17px", fontWeight: 700,
           color: "#E8EAED", letterSpacing: "-0.3px",
         }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#5B6AF0", flexShrink: 0, display: "inline-block" }} />
-          Repetitor CRM
+          <img src={logo} alt="Logo" style={{ width: 24, height: 24, borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} />
         </div>
+
 
         {/* Asosiy */}
         <p style={SECTION_LABEL}>Asosiy</p>
