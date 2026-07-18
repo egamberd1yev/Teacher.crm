@@ -9,14 +9,17 @@ export const AttendanceEntity = new EntitySchema({
       primary: true,
       generated: "uuid",
     },
-    // Dars sanasi, masalan "2026-06-24"
     date: {
       type: "date",
     },
     status: {
       type: "enum",
-      enum: ["present", "absent"],
+      enum: ["present", "absent", "excused"],
       default: "absent",
+    },
+    reason: {
+      type: "varchar",
+      nullable: true,
     },
   },
   relations: {

@@ -3,7 +3,6 @@ import { groupRepository } from "../repositories/group.repository.js";
 import { studentRepository } from "../repositories/student.repository.js";
 
 export const attendanceService = {
-  // Kalendarda sana bosilganda - shu guruh + sana uchun barcha o'quvchilarning holati
   async getByGroupAndDate(teacherId, groupId, date) {
     const group = await groupRepository.findOne({
       where: { id: groupId, teacher: { id: teacherId } },
@@ -13,21 +12,21 @@ export const attendanceService = {
 
     const results = [];
     for (const student of group.students) {
-      let record = await attendanceRepository.findOne({
+      const record = await attendanceRepository.findOne({
         where: { student: { id: student.id }, group: { id: groupId }, date },
       });
-      if (!record) {
-        // Hali belgilanmagan - standart holat "absent" sifatida ko'rsatiladi, lekin bazaga yozilmaydi
-        results.push({ studentId: student.id, fullName: student.fullName, status: null });
-      } else {
-        results.push({ studentId: student.id, fullName: student.fullName, status: record.status });
-      }
+      results.push({
+        studentId: student.id,
+        fullName: student.fullName,
+        status: record ? record.status : null,
+        reason: record ? record.reason : null,
+      });
     }
     return results;
   },
 
-  // Keldi/kelmadi holatini almashtirish (yo'q bo'lsa yaratadi)
-  async toggleStatus(teacherId, studentId, groupId, date) {
+  // Aniq holatni belgilash: "present" | "absent" | "excused" (+ ixtiyoriy sabab)
+  async setStatus(teacherId, studentId, groupId, date, status, reason) {
     const student = await studentRepository.findOne({
       where: { id: studentId },
       relations: { group: { teacher: true } },
@@ -45,10 +44,12 @@ export const attendanceService = {
         student: { id: studentId },
         group: { id: groupId },
         date,
-        status: "present",
+        status,
+        reason: status === "excused" ? (reason || null) : null,
       });
     } else {
-      record.status = record.status === "present" ? "absent" : "present";
+      record.status = status;
+      record.reason = status === "excused" ? (reason || null) : null;
     }
 
     return attendanceRepository.save(record);

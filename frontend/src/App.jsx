@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Groups from "./pages/Groups.jsx";
 import Payments from "./pages/Payments.jsx";
 import GroupDetail from "./pages/GroupDetail.jsx";
+import Attendance from "./pages/Attendance.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
@@ -17,7 +18,8 @@ export default function App() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
       <Route path="/groups/:id" element={<ProtectedRoute><GroupDetail /></ProtectedRoute>} />
-       <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+      <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+      <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />
     </Routes>
   );
 }
