@@ -69,13 +69,14 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         {/* Logo */}
         <div style={{
-          display: "flex", alignItems: "center", gap: "8px",
+          display: "flex", alignItems: "center",
           padding: "0 12px 20px",
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontSize: "17px", fontWeight: 700,
-          color: "#E8EAED", letterSpacing: "-0.3px",
         }}>
-          <img src={logo} alt="Logo" style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0 }} />
+          <img
+            src={logo}
+            alt="Teacher CRM"
+            style={{ height: 28, width: "auto", objectFit: "contain" }}
+          />
         </div>
 
 
