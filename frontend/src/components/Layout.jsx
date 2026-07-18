@@ -4,7 +4,7 @@ import { useTheme } from "../context/ThemeContext.jsx";
 
 export default function Layout({ title, action, children }) {
   const { dark, toggle } = useTheme();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const bg   = dark ? "#0F1117" : "#F4F5F7";
   const text = dark ? "#E8EAED" : "#111318";
@@ -13,13 +13,13 @@ export default function Layout({ title, action, children }) {
     <div style={{ display: "flex", minHeight: "100vh", background: bg, transition: "background 0.2s" }}>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="main-content">
+      <main className={`main-content${sidebarOpen ? "" : " sidebar-closed"}`}>
         {/* Topbar */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {/* Burger menu — faqat mobilda ko'rinadi */}
+            {/* Burger menu — sidebar ochish/yopish */}
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={() => setSidebarOpen((v) => !v)}
               className="burger-btn"
               title="Menu"
             >

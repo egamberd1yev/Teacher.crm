@@ -289,23 +289,23 @@ export default function GroupDetail() {
 
         {/* Kalendar */}
         <div style={{ background:cardBg, border:`1px solid ${border}`, borderRadius:"12px", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,0.06)" }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 20px", borderBottom:`1px solid ${divider}` }}>
-            <button onClick={prevMonth} style={{ fontSize:"18px", color:sub, background:"none", border:"none", cursor:"pointer", lineHeight:1, padding:"0 4px" }}>‹</button>
-            <span style={{ fontSize:"13px", fontWeight:600, color:text }}>{MONTHS_UZ[viewMonth]} {viewYear}</span>
-            <button onClick={nextMonth} style={{ fontSize:"18px", color:sub, background:"none", border:"none", cursor:"pointer", lineHeight:1, padding:"0 4px" }}>›</button>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"18px 24px", borderBottom:`1px solid ${divider}` }}>
+            <button onClick={prevMonth} style={{ fontSize:"22px", color:sub, background:"none", border:"none", cursor:"pointer", lineHeight:1, padding:"0 6px" }}>‹</button>
+            <span style={{ fontSize:"16px", fontWeight:600, color:text }}>{MONTHS_UZ[viewMonth]} {viewYear}</span>
+            <button onClick={nextMonth} style={{ fontSize:"22px", color:sub, background:"none", border:"none", cursor:"pointer", lineHeight:1, padding:"0 6px" }}>›</button>
           </div>
-          <div style={{ padding:"16px" }}>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:"4px", marginBottom:"8px" }}>
+          <div style={{ padding:"24px" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:"8px", marginBottom:"12px" }}>
               {["Ya","Du","Se","Ch","Pa","Ju","Sh"].map((d) => (
-                <div key={d} style={{ fontSize:"10.5px", fontWeight:600, color:"#9CA3AF", textAlign:"center" }}>{d}</div>
+                <div key={d} style={{ fontSize:"13px", fontWeight:600, color:"#9CA3AF", textAlign:"center" }}>{d}</div>
               ))}
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:"4px" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:"8px" }}>
               {cells.map((cell, i) => cell ? (
                 <button key={i} disabled={!cell.isLesson}
                   onClick={() => cell.isLesson && setAttDate(cell.dateStr)}
                   style={{
-                    aspectRatio:"1", borderRadius:"8px", fontSize:"12px",
+                    aspectRatio:"1", borderRadius:"10px", fontSize:"16px",
                     display:"flex", alignItems:"center", justifyContent:"center",
                     border: cell.isToday ? "2px solid #5B6AF0" : "2px solid transparent",
                     background: cell.isLesson ? (dark ? "rgba(91,106,240,0.2)" : "#EEF0FE") : "transparent",
@@ -322,7 +322,7 @@ export default function GroupDetail() {
                 </button>
               ) : <span key={i} />)}
             </div>
-            <p style={{ marginTop:"14px", fontSize:"11px", color:"#9CA3AF", textAlign:"center" }}>
+            <p style={{ marginTop:"18px", fontSize:"13px", color:"#9CA3AF", textAlign:"center" }}>
               Dars kunlariga bosing → davomat belgilang
             </p>
           </div>

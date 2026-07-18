@@ -44,6 +44,7 @@ export default function Sidebar({ isOpen, onClose }) {
       {isOpen && (
         <div
           onClick={onClose}
+          className="sidebar-backdrop"
           style={{
             position: "fixed", inset: 0,
             background: "rgba(0,0,0,0.5)",
@@ -63,7 +64,6 @@ export default function Sidebar({ isOpen, onClose }) {
           flexDirection: "column",
           padding: "20px 12px",
           zIndex: 50,
-          transition: "transform 0.25s ease",
         }}
       >
         {/* Logo */}
