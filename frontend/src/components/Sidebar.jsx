@@ -75,7 +75,7 @@ export default function Sidebar({ isOpen, onClose }) {
           fontSize: "17px", fontWeight: 700,
           color: "#E8EAED", letterSpacing: "-0.3px",
         }}>
-          <img src={logo} alt="Logo" style={{ width: 24, height: 24, borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} />
+          <img src={logo} alt="Logo" style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0 }} />
         </div>
 
 
