@@ -70,12 +70,12 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Logo */}
         <div style={{
           display: "flex", alignItems: "center",
-          padding: "0 12px 20px",
+          padding: "0 12px 24px",
         }}>
           <img
             src={logo}
             alt="Teacher CRM"
-            style={{ height: 28, width: "auto", objectFit: "contain" }}
+            style={{ height: 40, width: "auto", objectFit: "contain" }}
           />
         </div>
 
