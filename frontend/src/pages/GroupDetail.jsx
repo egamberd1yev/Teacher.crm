@@ -15,6 +15,8 @@ function monthKey(y, m)   { return `${y}-${pad(m + 1)}`; }
 /* ---- DAVOMAT MODALI ---- */
 function AttendanceModal({ date, groupId, dark, onClose }) {
   const [list, setList] = useState([]);
+  const [reasonFor, setReasonFor] = useState(null);
+  const [reasonText, setReasonText] = useState("");
 
   async function load() {
     const { data } = await api.get(`/attendance/group/${groupId}`, { params: { date } });
@@ -22,9 +24,16 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
   }
   useEffect(() => { load(); }, [date]);
 
-  async function toggle(studentId) {
-    await api.patch(`/attendance/student/${studentId}/toggle`, { groupId, date });
+  async function setStatus(studentId, status, reason) {
+    await api.patch(`/attendance/student/${studentId}/status`, { groupId, date, status, reason });
+    setReasonFor(null);
+    setReasonText("");
     load();
+  }
+
+  function handleExcusedClick(studentId, existingReason) {
+    setReasonFor(studentId);
+    setReasonText(existingReason || "");
   }
 
   const bg     = dark ? "#1A1D27" : "#ffffff";
@@ -32,23 +41,58 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
   const text   = dark ? "#E8EAED" : "#111318";
   const sub    = dark ? "#8B90A7" : "#6B7280";
 
+  function statusBtnStyle(active, color) {
+    return {
+      flex: 1,
+      padding: "6px 8px",
+      fontSize: "11.5px",
+      fontWeight: 600,
+      borderRadius: "8px",
+      border: `1px solid ${active ? color : border}`,
+      background: active ? color : "transparent",
+      color: active ? "white" : sub,
+      cursor: "pointer",
+      fontFamily: "'Inter',sans-serif",
+      transition: "all 0.15s",
+    };
+  }
+
   return (
     <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", padding:"16px", zIndex:100 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background:bg, border:`1px solid ${border}`, borderRadius:"16px", padding:"24px", width:"100%", maxWidth:"360px", boxShadow:"0 20px 60px rgba(0,0,0,0.3)" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background:bg, border:`1px solid ${border}`, borderRadius:"16px", padding:"24px", width:"100%", maxWidth:"420px", boxShadow:"0 20px 60px rgba(0,0,0,0.3)" }}>
         <p style={{ fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:"17px", fontWeight:700, color:text, margin:"0 0 4px" }}>Davomat</p>
         <p style={{ fontSize:"13px", color:sub, margin:"0 0 20px" }}>{date}</p>
-        <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"280px", overflowY:"auto" }}>
+        <div style={{ display:"flex", flexDirection:"column", gap:"10px", maxHeight:"400px", overflowY:"auto" }}>
           {list.map((item) => (
-            <button key={item.studentId} onClick={() => toggle(item.studentId)}
-              style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 14px", borderRadius:"10px", border:`1px solid ${border}`, background:"transparent", cursor:"pointer", fontFamily:"'Inter',sans-serif", transition:"border-color 0.15s" }}
-              onMouseEnter={(e) => e.currentTarget.style.borderColor = "#5B6AF0"}
-              onMouseLeave={(e) => e.currentTarget.style.borderColor = border}
-            >
-              <span style={{ fontSize:"13.5px", fontWeight:500, color:text }}>{item.fullName}</span>
-              <span className={`s-pill ${item.status === "present" ? "pill-green" : item.status === "absent" ? "pill-red" : "pill-gray"}`}>
-                {item.status === "present" ? "Keldi" : item.status === "absent" ? "Kelmadi" : "Belgilanmagan"}
-              </span>
-            </button>
+            <div key={item.studentId} style={{ padding:"10px 12px", borderRadius:"10px", border:`1px solid ${border}` }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"8px" }}>
+                <span style={{ fontSize:"13.5px", fontWeight:500, color:text }}>{item.fullName}</span>
+                {item.status === "excused" && item.reason && (
+                  <span style={{ fontSize:"11px", color:sub, fontStyle:"italic", maxWidth:"140px", textAlign:"right", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }} title={item.reason}>
+                    {item.reason}
+                  </span>
+                )}
+              </div>
+              <div style={{ display:"flex", gap:"6px" }}>
+                <button style={statusBtnStyle(item.status === "present", "#22C55E")} onClick={() => setStatus(item.studentId, "present")}>Keldi</button>
+                <button style={statusBtnStyle(item.status === "absent", "#EF4444")} onClick={() => setStatus(item.studentId, "absent")}>Kelmadi</button>
+                <button style={statusBtnStyle(item.status === "excused", "#F59E0B")} onClick={() => handleExcusedClick(item.studentId, item.reason)}>Sababli</button>
+              </div>
+              {reasonFor === item.studentId && (
+                <div style={{ display:"flex", gap:"6px", marginTop:"8px" }}>
+                  <input
+                    autoFocus
+                    value={reasonText}
+                    onChange={(e) => setReasonText(e.target.value)}
+                    placeholder="Sababini yozing..."
+                    className="crm-input"
+                    style={{ flex:1, padding:"6px 10px", fontSize:"12px" }}
+                    onKeyDown={(e) => { if (e.key === "Enter") setStatus(item.studentId, "excused", reasonText); }}
+                  />
+                  <button onClick={() => setStatus(item.studentId, "excused", reasonText)} className="btn-primary" style={{ padding:"6px 12px", fontSize:"12px" }}>OK</button>
+                </div>
+              )}
+            </div>
           ))}
           {list.length === 0 && <p style={{ fontSize:"13px", color:"#9CA3AF", textAlign:"center", padding:"16px 0" }}>O'quvchi yo'q</p>}
         </div>
