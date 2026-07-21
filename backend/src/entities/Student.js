@@ -16,6 +16,11 @@ export const StudentEntity = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
+    // Ota-ona botda shu kod orqali farzandini bog'laydi. Masalan "AH3921"
+    linkCode: {
+      type: "varchar",
+      unique: true,
+    },
     joinedAt: {
       type: "timestamp",
       createDate: true,
@@ -37,6 +42,11 @@ export const StudentEntity = new EntitySchema({
     attendances: {
       type: "one-to-many",
       target: "Attendance",
+      inverseSide: "student",
+    },
+    parentLinks: {
+      type: "one-to-many",
+      target: "ParentLink",
       inverseSide: "student",
     },
   },

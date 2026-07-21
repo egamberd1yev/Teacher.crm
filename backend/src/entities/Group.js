@@ -26,6 +26,32 @@ export const GroupEntity = new EntitySchema({
     scheduleDays: {
       type: "simple-array", // TypeORM buni vergul bilan ajratilgan string sifatida saqlaydi
     },
+    // Oyning qaysi kuni to'lov muddati, masalan 5 (har oy 5-sanasi)
+    paymentDay: {
+      type: "int",
+      default: 5,
+    },
+    // active   - guruh faol, hammasi ishlaydi
+    // frozen   - vaqtincha to'xtatilgan, davomat/to'lov eslatmasi to'xtaydi, lekin ro'yxatda ko'rinadi
+    // archived - butunlay tugatilgan, ro'yxatdan yashiriladi, arxivga tushadi
+    status: {
+      type: "enum",
+      enum: ["active", "frozen", "archived"],
+      default: "active",
+    },
+    // Muzlatilganda sabab (ixtiyoriy)
+    frozenReason: {
+      type: "varchar",
+      nullable: true,
+    },
+    frozenAt: {
+      type: "timestamp",
+      nullable: true,
+    },
+    archivedAt: {
+      type: "timestamp",
+      nullable: true,
+    },
     createdAt: {
       type: "timestamp",
       createDate: true,

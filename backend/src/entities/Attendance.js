@@ -21,6 +21,21 @@ export const AttendanceEntity = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
+    // O'qituvchi ixtiyoriy ravishda kech qolish daqiqasini kiritadi (masalan 15)
+    lateMinutes: {
+      type: "int",
+      nullable: true,
+    },
+    // O'qituvchining ixtiyoriy sharhi, ota-onaga botda yuboriladi
+    comment: {
+      type: "text",
+      nullable: true,
+    },
+    // Ota-onaga davomat xabari yuborilganini belgilash (qayta yubormaslik uchun)
+    notifiedAt: {
+      type: "timestamp",
+      nullable: true,
+    },
   },
   relations: {
     student: {
