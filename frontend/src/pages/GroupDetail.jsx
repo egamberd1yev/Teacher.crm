@@ -17,6 +17,10 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
   const [list, setList] = useState([]);
   const [reasonFor, setReasonFor] = useState(null);
   const [reasonText, setReasonText] = useState("");
+  const [lateFor, setLateFor] = useState(null);
+  const [lateText, setLateText] = useState("");
+  const [commentFor, setCommentFor] = useState(null);
+  const [commentText, setCommentText] = useState("");
 
   async function load() {
     const { data } = await api.get(`/attendance/group/${groupId}`, { params: { date } });
@@ -31,9 +35,39 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
     load();
   }
 
+  async function setLate(studentId, lateMinutes) {
+    await api.patch(`/attendance/student/${studentId}/late`, { groupId, date, lateMinutes: Number(lateMinutes) });
+    setLateFor(null);
+    setLateText("");
+    load();
+  }
+
+  async function setComment(studentId, comment) {
+    await api.patch(`/attendance/student/${studentId}/comment`, { groupId, date, comment });
+    setCommentFor(null);
+    setCommentText("");
+    load();
+  }
+
   function handleExcusedClick(studentId, existingReason) {
     setReasonFor(studentId);
     setReasonText(existingReason || "");
+    setLateFor(null);
+    setCommentFor(null);
+  }
+
+  function handleLateClick(studentId, existingLate) {
+    setLateFor(studentId);
+    setLateText(existingLate ? String(existingLate) : "");
+    setReasonFor(null);
+    setCommentFor(null);
+  }
+
+  function handleCommentClick(studentId, existingComment) {
+    setCommentFor(studentId);
+    setCommentText(existingComment || "");
+    setReasonFor(null);
+    setLateFor(null);
   }
 
   const bg     = dark ? "#1A1D27" : "#ffffff";
@@ -57,12 +91,28 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
     };
   }
 
+  function miniBtnStyle(active, color) {
+    return {
+      flex: 1,
+      padding: "5px 8px",
+      fontSize: "11px",
+      fontWeight: 600,
+      borderRadius: "8px",
+      border: `1px solid ${active ? color : border}`,
+      background: active ? (dark ? `${color}22` : `${color}15`) : "transparent",
+      color: active ? color : sub,
+      cursor: "pointer",
+      fontFamily: "'Inter',sans-serif",
+      transition: "all 0.15s",
+    };
+  }
+
   return (
     <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", padding:"16px", zIndex:100 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ background:bg, border:`1px solid ${border}`, borderRadius:"16px", padding:"24px", width:"100%", maxWidth:"420px", boxShadow:"0 20px 60px rgba(0,0,0,0.3)" }}>
         <p style={{ fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:"17px", fontWeight:700, color:text, margin:"0 0 4px" }}>Davomat</p>
         <p style={{ fontSize:"13px", color:sub, margin:"0 0 20px" }}>{date}</p>
-        <div style={{ display:"flex", flexDirection:"column", gap:"10px", maxHeight:"400px", overflowY:"auto" }}>
+        <div style={{ display:"flex", flexDirection:"column", gap:"10px", maxHeight:"440px", overflowY:"auto" }}>
           {list.map((item) => (
             <div key={item.studentId} style={{ padding:"10px 12px", borderRadius:"10px", border:`1px solid ${border}` }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"8px" }}>
@@ -73,11 +123,14 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
                   </span>
                 )}
               </div>
+
+              {/* Asosiy davomat holati */}
               <div style={{ display:"flex", gap:"6px" }}>
                 <button style={statusBtnStyle(item.status === "present", "#22C55E")} onClick={() => setStatus(item.studentId, "present")}>Keldi</button>
                 <button style={statusBtnStyle(item.status === "absent", "#EF4444")} onClick={() => setStatus(item.studentId, "absent")}>Kelmadi</button>
                 <button style={statusBtnStyle(item.status === "excused", "#F59E0B")} onClick={() => handleExcusedClick(item.studentId, item.reason)}>Sababli</button>
               </div>
+
               {reasonFor === item.studentId && (
                 <div style={{ display:"flex", gap:"6px", marginTop:"8px" }}>
                   <input
@@ -90,6 +143,70 @@ function AttendanceModal({ date, groupId, dark, onClose }) {
                     onKeyDown={(e) => { if (e.key === "Enter") setStatus(item.studentId, "excused", reasonText); }}
                   />
                   <button onClick={() => setStatus(item.studentId, "excused", reasonText)} className="btn-primary" style={{ padding:"6px 12px", fontSize:"12px" }}>OK</button>
+                </div>
+              )}
+
+              {/* Kech qoldi / Izoh — ixtiyoriy, bot orqali ota-onaga xabar ketadi */}
+              <div style={{ display:"flex", gap:"6px", marginTop:"8px" }}>
+                <button
+                  style={miniBtnStyle(!!item.lateMinutes, "#F59E0B")}
+                  onClick={() => handleLateClick(item.studentId, item.lateMinutes)}
+                >
+                  ⏰ {item.lateMinutes ? `${item.lateMinutes} daq kech` : "Kech qoldi"}
+                </button>
+                <button
+                  style={miniBtnStyle(!!item.comment, "#5B6AF0")}
+                  onClick={() => handleCommentClick(item.studentId, item.comment)}
+                >
+                  💬 {item.comment ? "Izoh bor" : "Izoh"}
+                </button>
+              </div>
+
+              {lateFor === item.studentId && (
+                <div style={{ display:"flex", gap:"6px", marginTop:"8px" }}>
+                  <input
+                    autoFocus
+                    type="number"
+                    min="1"
+                    value={lateText}
+                    onChange={(e) => setLateText(e.target.value)}
+                    placeholder="Necha daqiqa? (masalan 15)"
+                    className="crm-input"
+                    style={{ flex:1, padding:"6px 10px", fontSize:"12px" }}
+                    onKeyDown={(e) => { if (e.key === "Enter" && lateText) setLate(item.studentId, lateText); }}
+                  />
+                  <button
+                    onClick={() => lateText && setLate(item.studentId, lateText)}
+                    className="btn-primary"
+                    style={{ padding:"6px 12px", fontSize:"12px" }}
+                  >
+                    OK
+                  </button>
+                </div>
+              )}
+
+              {commentFor === item.studentId && (
+                <div style={{ display:"flex", flexDirection:"column", gap:"6px", marginTop:"8px" }}>
+                  <textarea
+                    autoFocus
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Ota-onaga boradigan izoh..."
+                    className="crm-input"
+                    rows={2}
+                    style={{ padding:"6px 10px", fontSize:"12px", resize:"none" }}
+                  />
+                  <div style={{ display:"flex", gap:"6px" }}>
+                    <button onClick={() => setComment(item.studentId, commentText)} className="btn-primary" style={{ padding:"6px 12px", fontSize:"12px" }}>
+                      Yuborish
+                    </button>
+                    <button
+                      onClick={() => { setCommentFor(null); setCommentText(""); }}
+                      style={{ fontSize:"12px", color:sub, background:"none", border:"none", cursor:"pointer", fontFamily:"'Inter',sans-serif" }}
+                    >
+                      Bekor
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -140,6 +257,7 @@ export default function GroupDetail() {
   const [group, setGroup]       = useState(null);
   const [students, setStudents] = useState([]);
   const [summary, setSummary]   = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
 
   const today = new Date();
   const [viewYear,  setViewYear]  = useState(today.getFullYear());
@@ -209,6 +327,13 @@ export default function GroupDetail() {
     setPayStudent(null);
   }
 
+  function handleCopyCode(e, studentId, code) {
+    e.stopPropagation(); // pastdagi qatorni bosilishini (to'lov modalini ochishni) to'xtatadi
+    navigator.clipboard.writeText(code);
+    setCopiedId(studentId);
+    setTimeout(() => setCopiedId((cur) => (cur === studentId ? null : cur)), 1500);
+  }
+
   if (!group) return <Layout title="Yuklanmoqda..."><p style={{ color: sub, fontSize:"14px" }}>Yuklanmoqda...</p></Layout>;
 
   const debtorIds = new Set(summary?.debtors?.map((d) => d.id) || []);
@@ -264,22 +389,45 @@ export default function GroupDetail() {
 
           <div>
             {students.map((s, i) => (
-              <button key={s.id}
+              <div key={s.id}
                 onClick={() => setPayStudent({ ...s, isDebtor: debtorIds.has(s.id) })}
-                style={{ width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 20px", background:"transparent", border:"none", cursor:"pointer", borderBottom: i < students.length - 1 ? `1px solid ${divider}` : "none", fontFamily:"'Inter',sans-serif", transition:"background 0.1s" }}
+                role="button"
+                tabIndex={0}
+                style={{ width:"100%", display:"flex", flexDirection:"column", gap:"6px", padding:"12px 20px", background:"transparent", border:"none", cursor:"pointer", borderBottom: i < students.length - 1 ? `1px solid ${divider}` : "none", fontFamily:"'Inter',sans-serif", transition:"background 0.1s" }}
                 onMouseEnter={(e) => e.currentTarget.style.background = dark ? "rgba(91,106,240,0.08)" : "#EEF0FE"}
                 onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               >
-                <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-                  <div style={{ width:28, height:28, borderRadius:"7px", background: dark ? "rgba(91,106,240,0.2)" : "#EEF0FE", color:"#5B6AF0", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"11px", fontWeight:700, flexShrink:0 }}>
-                    {s.fullName.split(" ").map((w) => w[0]).slice(0,2).join("").toUpperCase()}
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+                    <div style={{ width:28, height:28, borderRadius:"7px", background: dark ? "rgba(91,106,240,0.2)" : "#EEF0FE", color:"#5B6AF0", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"11px", fontWeight:700, flexShrink:0 }}>
+                      {s.fullName.split(" ").map((w) => w[0]).slice(0,2).join("").toUpperCase()}
+                    </div>
+                    <span style={{ fontSize:"13.5px", fontWeight:500, color:text }}>{s.fullName}</span>
                   </div>
-                  <span style={{ fontSize:"13.5px", fontWeight:500, color:text }}>{s.fullName}</span>
+                  <span className={`s-pill ${debtorIds.has(s.id) ? "pill-red" : "pill-green"}`}>
+                    {debtorIds.has(s.id) ? "Qarzdor" : "To'lagan"}
+                  </span>
                 </div>
-                <span className={`s-pill ${debtorIds.has(s.id) ? "pill-red" : "pill-green"}`}>
-                  {debtorIds.has(s.id) ? "Qarzdor" : "To'lagan"}
-                </span>
-              </button>
+
+                {/* Ota-ona botga ulanishi uchun kod — nusxalash tugmasi bilan */}
+                {s.linkCode && (
+                  <div style={{ display:"flex", alignItems:"center", gap:"8px", marginLeft:"38px" }}>
+                    <span style={{ fontSize:"11px", color:sub }}>🔑 Kod:</span>
+                    <span style={{ fontSize:"12px", fontWeight:600, color:"#5B6AF0", fontFamily:"monospace", letterSpacing:"0.5px" }}>{s.linkCode}</span>
+                    <button
+                      onClick={(e) => handleCopyCode(e, s.id, s.linkCode)}
+                      style={{
+                        fontSize:"10.5px", padding:"2px 8px", borderRadius:"6px",
+                        border:`1px solid ${border}`, background:"transparent",
+                        color: copiedId === s.id ? "#22C55E" : sub,
+                        cursor:"pointer", fontFamily:"'Inter',sans-serif", fontWeight:600,
+                      }}
+                    >
+                      {copiedId === s.id ? "✓ Nusxalandi" : "Nusxalash"}
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
             {students.length === 0 && (
               <p style={{ padding:"24px 20px", textAlign:"center", fontSize:"13px", color:sub }}>Hali o'quvchi yo'q. + Qo'shish tugmasini bosing.</p>
