@@ -17,9 +17,12 @@ export const StudentEntity = new EntitySchema({
       nullable: true,
     },
     // Ota-ona botda shu kod orqali farzandini bog'laydi. Masalan "AH3921"
+    // nullable: true - chunki eski o'quvchilarda bu ustun hali bo'sh bo'ladi,
+    // backfill skripti orqali to'ldiriladi (pastga qarang)
     linkCode: {
       type: "varchar",
       unique: true,
+      nullable: true,
     },
     joinedAt: {
       type: "timestamp",

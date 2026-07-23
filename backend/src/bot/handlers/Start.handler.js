@@ -1,7 +1,5 @@
 import { Markup } from "telegraf";
-import { AppDataSource } from "../../config/data-source.js";
-
-const ParentLink = () => AppDataSource.getRepository("ParentLink");
+import { parentLinkRepository } from "../../repositories/parentLink.repository.js";
 
 export function mainMenuKeyboard() {
   return Markup.keyboard([
@@ -13,7 +11,7 @@ export function mainMenuKeyboard() {
 export function registerStartHandler(bot) {
   bot.start(async (ctx) => {
     const chatId = String(ctx.chat.id);
-    const existingLinks = await ParentLink().find({
+    const existingLinks = await parentLinkRepository.find({
       where: { telegramChatId: chatId },
       relations: { student: true },
     });

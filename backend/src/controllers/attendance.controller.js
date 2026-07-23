@@ -22,4 +22,28 @@ export const attendanceController = {
       res.status(400).json({ message: error.message });
     }
   },
+
+  // Guruh sahifasida to'lov holati yonidagi "Kech qoldi" tugmasi
+  async setLate(req, res) {
+    try {
+      const { studentId } = req.params;
+      const { groupId, date, lateMinutes } = req.body;
+      const result = await attendanceService.setLateMinutes(req.teacherId, studentId, groupId, date, lateMinutes);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  // O'qituvchining ixtiyoriy sharhi
+  async setComment(req, res) {
+    try {
+      const { studentId } = req.params;
+      const { groupId, date, comment } = req.body;
+      const result = await attendanceService.setComment(req.teacherId, studentId, groupId, date, comment);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
 };

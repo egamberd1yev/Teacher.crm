@@ -1,5 +1,6 @@
 import { studentRepository } from "../repositories/student.repository.js";
 import { groupRepository } from "../repositories/group.repository.js";
+import { generateUniqueLinkCode } from "../utils/generateLinkCode.js";
 
 async function assertGroupOwnership(teacherId, groupId) {
   const group = await groupRepository.findOne({
@@ -12,9 +13,11 @@ async function assertGroupOwnership(teacherId, groupId) {
 export const studentService = {
   async create(teacherId, groupId, { fullName, phone }) {
     await assertGroupOwnership(teacherId, groupId);
+    const linkCode = await generateUniqueLinkCode(fullName, studentRepository);
     const student = studentRepository.create({
       fullName,
       phone,
+      linkCode,
       group: { id: groupId },
     });
     return studentRepository.save(student);

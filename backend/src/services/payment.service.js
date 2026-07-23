@@ -1,6 +1,7 @@
 import { paymentRepository } from "../repositories/payment.repository.js";
 import { studentRepository } from "../repositories/student.repository.js";
 import { groupRepository } from "../repositories/group.repository.js";
+import { notifyPaymentReceived } from "../bot/notify.service.js";
 
 export const paymentService = {
   // O'quvchi ismi ustiga bosilganda - shu oy uchun tolov holatini olish yoki yaratish
@@ -31,14 +32,28 @@ export const paymentService = {
 
     const payment = await this.getOrCreate(studentId, month);
     const newStatus = payment.status === "paid" ? "unpaid" : "paid";
+    const price = Number(student.group.monthlyPrice);
 
     await paymentRepository.update(payment.id, {
       status: newStatus,
-      amount: newStatus === "paid" ? student.group.monthlyPrice : null,
+      amount: newStatus === "paid" ? price : null,
       paidAt: newStatus === "paid" ? new Date() : null,
     });
 
-    return paymentRepository.findOneBy({ id: payment.id });
+    const updated = await paymentRepository.findOneBy({ id: payment.id });
+
+    // Faqat "to'landi" tomon o'zgarganda ota-onaga xabar boradi.
+    // "To'lanmadi"ga qaytarish odatda admin tomonidan tuzatish, bildirishnoma shart emas.
+    if (newStatus === "paid") {
+      await notifyPaymentReceived({
+        student,
+        group: student.group,
+        paidAmount: price,
+        remainingDebt: 0,
+      });
+    }
+
+    return updated;
   },
 
   // Guruh bo'yicha oylik statistika: kutilayotgan summa, yig'ilgan summa, qarzdorlar
@@ -61,6 +76,7 @@ export const paymentService = {
       if (payment && payment.status === "paid") {
         collectedTotal += Number(payment.amount || group.monthlyPrice);
       } else {
+        collectedTotal += Number(payment?.amount || 0); // qisman to'lovlar ham hisobga olinadi
         debtors.push({ id: student.id, fullName: student.fullName });
       }
     }
@@ -76,7 +92,7 @@ export const paymentService = {
     };
   },
 
-  // Summani qo'lda kiritish (qisman yoki to'liq to'lov)
+  // Summani qo'lda kiritish (qisman yoki to'liq to'lov). "amount" - jami hozirgacha to'langan summa.
   async setAmount(teacherId, studentId, month, amount) {
     const student = await studentRepository.findOne({
       where: { id: studentId },
@@ -88,7 +104,12 @@ export const paymentService = {
 
     const payment = await this.getOrCreate(studentId, month);
     const numAmount = Number(amount) || 0;
-    const status = numAmount >= Number(student.group.monthlyPrice) ? "paid" : "unpaid";
+    const price = Number(student.group.monthlyPrice);
+
+    let status;
+    if (numAmount <= 0) status = "unpaid";
+    else if (numAmount < price) status = "partial";
+    else status = "paid";
 
     await paymentRepository.update(payment.id, {
       amount: numAmount,
@@ -96,7 +117,19 @@ export const paymentService = {
       paidAt: status === "paid" ? new Date() : null,
     });
 
-    return paymentRepository.findOneBy({ id: payment.id });
+    const updated = await paymentRepository.findOneBy({ id: payment.id });
+
+    if (numAmount > 0) {
+      const remainingDebt = Math.max(price - numAmount, 0);
+      await notifyPaymentReceived({
+        student,
+        group: student.group,
+        paidAmount: numAmount,
+        remainingDebt,
+      });
+    }
+
+    return updated;
   },
 
   // "To'lovlar" sahifasi uchun - barcha o'quvchilar shu oy bo'yicha

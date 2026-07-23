@@ -19,6 +19,15 @@ export const groupController = {
     }
   },
 
+  async findArchived(req, res) {
+    try {
+      const groups = await groupService.findArchived(req.teacherId);
+      res.status(200).json(groups);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
   async findOne(req, res) {
     try {
       const group = await groupService.findOne(req.teacherId, req.params.id);
@@ -41,6 +50,36 @@ export const groupController = {
     try {
       await groupService.remove(req.teacherId, req.params.id);
       res.status(204).send();
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  // ⋮ menyu - Muzlatish
+  async freeze(req, res) {
+    try {
+      const group = await groupService.freeze(req.teacherId, req.params.id, req.body.reason);
+      res.status(200).json(group);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  // Muzlatilgan guruhni qayta faollashtirish
+  async unfreeze(req, res) {
+    try {
+      const group = await groupService.unfreeze(req.teacherId, req.params.id);
+      res.status(200).json(group);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  // ⋮ menyu - Guruhni tugatish (arxivga)
+  async archive(req, res) {
+    try {
+      const group = await groupService.archive(req.teacherId, req.params.id);
+      res.status(200).json(group);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }

@@ -1,10 +1,8 @@
-import { AppDataSource } from "../config/data-source.js";
+import { parentLinkRepository } from "../repositories/parentLink.repository.js";
 import { getBot } from "./bot.js";
 
-const ParentLink = () => AppDataSource.getRepository("ParentLink");
-
 async function sendToStudentParents(studentId, text) {
-  const links = await ParentLink().find({ where: { student: { id: studentId } } });
+  const links = await parentLinkRepository.find({ where: { student: { id: studentId } } });
   if (links.length === 0) return; // bu o'quvchiga ota-ona hali bog'lanmagan
 
   const bot = getBot();
@@ -45,7 +43,7 @@ export async function notifyTeacherComment({ student, group, comment }) {
   await sendToStudentParents(student.id, text);
 }
 
-// Har kunlik cron job orqali chaqiriladi (pastga qarang: jobs/paymentReminder.job.js)
+// Har kunlik cron job orqali chaqiriladi (jobs/paymentReminder.job.js)
 export async function notifyPaymentReminder({ student, group, debtAmount, isDueTomorrow }) {
   const formattedAmount = Number(debtAmount).toLocaleString();
   const text = isDueTomorrow
@@ -54,13 +52,15 @@ export async function notifyPaymentReminder({ student, group, debtAmount, isDueT
   await sendToStudentParents(student.id, text);
 }
 
-// To'lov to'liq yoki qisman qabul qilinganda chaqiriladi
+// payment.service.js da to'lov summasi kiritilganda/yangilanganda chaqiriladi
+// paidAmount - shu operatsiyada tizimga kiritilgan JAMI to'langan summa (kümülativ)
+// remainingDebt - shundan keyin qolgan qarz (0 yoki manfiy bo'lsa to'liq to'langan)
 export async function notifyPaymentReceived({ student, group, paidAmount, remainingDebt }) {
   let text;
   if (remainingDebt <= 0) {
-    text = `✅ "${group.name}" guruhi uchun to'lov qabul qilindi. Rahmat!`;
+    text = `✅ "${group.name}" guruhi uchun to'lov to'liq qabul qilindi. Rahmat!`;
   } else {
-    text = `✅ "${group.name}" guruhi uchun ${Number(paidAmount).toLocaleString()} so'm to'lov qabul qilindi.\n🔴 Qolgan qarz: ${Number(
+    text = `✅ "${group.name}" guruhi uchun to'lov qabul qilindi (jami: ${Number(paidAmount).toLocaleString()} so'm).\n🔴 Qolgan qarz: ${Number(
       remainingDebt
     ).toLocaleString()} so'm.`;
   }

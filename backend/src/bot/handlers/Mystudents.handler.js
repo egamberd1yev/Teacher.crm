@@ -1,9 +1,8 @@
 import { Markup } from "telegraf";
-import { AppDataSource } from "../../config/data-source.js";
-
-const ParentLink = () => AppDataSource.getRepository("ParentLink");
-const Attendance = () => AppDataSource.getRepository("Attendance");
-const Payment = () => AppDataSource.getRepository("Payment");
+import { parentLinkRepository } from "../../repositories/parentLink.repository.js";
+import { attendanceRepository } from "../../repositories/attendance.repository.js";
+import { paymentRepository } from "../../repositories/payment.repository.js";
+import { studentRepository } from "../../repositories/student.repository.js";
 
 export function registerMyStudentsHandler(bot) {
   bot.hears("👨‍👩‍👧 O'quvchilarim", (ctx) => showStudentsList(ctx));
@@ -18,7 +17,7 @@ export function registerMyStudentsHandler(bot) {
 
 async function showStudentsList(ctx) {
   const chatId = String(ctx.chat.id);
-  const links = await ParentLink().find({
+  const links = await parentLinkRepository.find({
     where: { telegramChatId: chatId },
     relations: { student: { group: true } },
   });
@@ -41,14 +40,23 @@ async function showStudentsList(ctx) {
 }
 
 async function showStudentDetails(ctx, studentId) {
-  const recentAttendance = await Attendance().find({
+  const student = await studentRepository.findOne({
+    where: { id: studentId },
+    relations: { group: true },
+  });
+  if (!student) {
+    await ctx.reply("O'quvchi topilmadi.");
+    return;
+  }
+
+  const recentAttendance = await attendanceRepository.find({
     where: { student: { id: studentId } },
     order: { date: "DESC" },
     take: 5,
   });
 
   const currentMonth = new Date().toISOString().slice(0, 7); // "2026-07"
-  const payment = await Payment().findOne({
+  const payment = await paymentRepository.findOne({
     where: { student: { id: studentId }, month: currentMonth },
   });
 
@@ -65,16 +73,17 @@ async function showStudentDetails(ctx, studentId) {
     }
   }
 
+  const price = Number(student.group.monthlyPrice);
+  const paidSoFar = Number(payment?.amount || 0);
+  const debt = price - paidSoFar;
+
   text += "\n💳 Shu oy to'lovi:\n";
-  if (!payment) {
-    text += "— ma'lumot yo'q —";
-  } else if (payment.status === "paid") {
-    text += `✅ To'liq to'langan (${Number(payment.paidAmount).toLocaleString()} so'm)`;
+  if (!payment || payment.status === "unpaid") {
+    text += `🔴 To'lanmagan. Summasi: ${price.toLocaleString()} so'm`;
   } else if (payment.status === "partial") {
-    const debt = Number(payment.amount) - Number(payment.paidAmount);
-    text += `🟡 Qisman to'langan. Qolgan qarz: ${debt.toLocaleString()} so'm`;
+    text += `🟡 Qisman to'langan (${paidSoFar.toLocaleString()} so'm). Qolgan qarz: ${debt.toLocaleString()} so'm`;
   } else {
-    text += `🔴 To'lanmagan. Summasi: ${Number(payment.amount || 0).toLocaleString()} so'm`;
+    text += `✅ To'liq to'langan (${paidSoFar.toLocaleString()} so'm)`;
   }
 
   await ctx.reply(text);

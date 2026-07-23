@@ -1,8 +1,6 @@
-import { AppDataSource } from "../../config/data-source.js";
+import { studentRepository } from "../../repositories/student.repository.js";
+import { parentLinkRepository } from "../../repositories/parentLink.repository.js";
 import { mainMenuKeyboard } from "./start.handler.js";
-
-const Student = () => AppDataSource.getRepository("Student");
-const ParentLink = () => AppDataSource.getRepository("ParentLink");
 
 export function registerLinkStudentHandler(bot) {
   // Tugma yoki komanda orqali kod so'rash rejimini yoqish
@@ -18,7 +16,7 @@ export function registerLinkStudentHandler(bot) {
     const code = ctx.message.text.trim().toUpperCase();
     ctx.session.awaitingLinkCode = false;
 
-    const student = await Student().findOne({
+    const student = await studentRepository.findOne({
       where: { linkCode: code },
       relations: { group: true },
     });
@@ -32,7 +30,7 @@ export function registerLinkStudentHandler(bot) {
     }
 
     const chatId = String(ctx.chat.id);
-    const alreadyLinked = await ParentLink().findOne({
+    const alreadyLinked = await parentLinkRepository.findOne({
       where: { telegramChatId: chatId, student: { id: student.id } },
     });
 
@@ -44,12 +42,12 @@ export function registerLinkStudentHandler(bot) {
       return;
     }
 
-    const link = ParentLink().create({
+    const link = parentLinkRepository.create({
       telegramChatId: chatId,
       parentFirstName: ctx.from.first_name || null,
       student: { id: student.id },
     });
-    await ParentLink().save(link);
+    await parentLinkRepository.save(link);
 
     await ctx.reply(
       `✅ Muvaffaqiyatli bog'landingiz!\n\n👤 O'quvchi: ${student.fullName}\n📚 Guruh: ${student.group.name}\n\nEndi shu farzandingiz bo'yicha davomat, kech qolish va to'lov xabarlarini shu botda olib turasiz.`,

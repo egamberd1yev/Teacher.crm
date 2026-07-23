@@ -15,31 +15,25 @@ export const PaymentEntity = new EntitySchema({
     },
     // unpaid  - hali umuman to'lanmagan
     // partial - qisman to'langan, qarz qoldi
-    // paid    - to'liq to'langan
+    // paid    - to'liq to'langan (amount >= group.monthlyPrice)
     status: {
       type: "enum",
       enum: ["unpaid", "partial", "paid"],
       default: "unpaid",
     },
-    // Shu oy uchun jami to'lanishi kerak bo'lgan summa (guruh narxidan olinadi)
+    // Shu oy uchun hozirgacha to'langan summa (jami qancha to'lov kelib tushgani)
     amount: {
       type: "decimal",
       precision: 12,
       scale: 2,
       nullable: true,
     },
-    // Hozirgacha to'langan summa
-    paidAmount: {
-      type: "decimal",
-      precision: 12,
-      scale: 2,
-      default: 0,
-    },
     paidAt: {
       type: "timestamp",
       nullable: true,
     },
-    // Eslatma botlari oxirgi marta qachon yuborilgani (har kuni bittadan ortiq yubormaslik uchun)
+    // Bot orqali oxirgi marta qarzdorlik eslatmasi qachon yuborilgani
+    // (bir kunda bir nechta marta yubormaslik uchun)
     lastReminderSentAt: {
       type: "timestamp",
       nullable: true,

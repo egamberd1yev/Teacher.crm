@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { AppDataSource } from "../config/data-source.js";
+import { AppDataSource } from "../data-source.js";
 import { notifyPaymentReminder } from "../bot/notify.service.js";
 
 const Group = () => AppDataSource.getRepository("Group");

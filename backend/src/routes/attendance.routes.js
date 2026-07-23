@@ -8,5 +8,7 @@ router.use(authMiddleware);
 
 router.get("/group/:groupId", attendanceController.getByGroupAndDate);
 router.patch("/student/:studentId/status", attendanceController.setStatus);
+router.patch("/student/:studentId/late", attendanceController.setLate);
+router.patch("/student/:studentId/comment", attendanceController.setComment);
 
 export default router;
