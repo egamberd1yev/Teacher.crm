@@ -434,28 +434,28 @@ function GroupMenu({ group, dark, onEdit, onFreeze, onUnfreeze, onArchive }) {
               onMouseEnter={(e) => e.currentTarget.style.background = dark ? "rgba(91,106,240,0.08)" : "#F3F4F6"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              ✏️ Tahrirlash
+               Tahrirlash
             </button>
             {group.status === "frozen" ? (
               <button style={itemStyle} onClick={() => { setOpen(false); onUnfreeze(); }}
                 onMouseEnter={(e) => e.currentTarget.style.background = dark ? "rgba(91,106,240,0.08)" : "#F3F4F6"}
                 onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               >
-                🟢 Faollashtirish
+                 Faollashtirish
               </button>
             ) : (
               <button style={itemStyle} onClick={() => { setOpen(false); onFreeze(); }}
                 onMouseEnter={(e) => e.currentTarget.style.background = dark ? "rgba(91,106,240,0.08)" : "#F3F4F6"}
                 onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               >
-                🟡 Muzlatish
+                 Muzlatish
               </button>
             )}
             <button style={{ ...itemStyle, color: "#EF4444" }} onClick={() => { setOpen(false); onArchive(); }}
               onMouseEnter={(e) => e.currentTarget.style.background = dark ? "rgba(239,68,68,0.08)" : "#FEE2E2"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              🔴 Guruhni tugatish
+               Guruhni tugatish
             </button>
           </div>
         </>
@@ -605,12 +605,12 @@ export default function GroupDetail() {
         </p>
         {group.status === "frozen" && (
           <span style={{ fontSize: "11px", fontWeight: 600, color: "#F59E0B", background: dark ? "rgba(245,158,11,0.15)" : "#FEF3C7", padding: "3px 9px", borderRadius: "999px", whiteSpace: "nowrap" }}>
-            🟡 Muzlatilgan
+             Muzlatilgan
           </span>
         )}
       </div>
 
-      {/* Statistika — responsive (auto-fit orqali kichik ekranlarda ham qatorlarga sig'adi) */}
+      
       <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px" }}>
         {stats.map((s) => (
           <div key={s.label} style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: "12px", padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
